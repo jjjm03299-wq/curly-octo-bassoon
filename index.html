@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Profile & Data</title>
+    <title>Dashboard</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #333; background: #f9f9f9; }
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f9f9f9; color: #333; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         pre { background: #f1f1f1; padding: 12px; border-radius: 4px; overflow-x: auto; }
-        .error { color: #d32f2f; }
+        .error { color: #d32f2f; font-weight: 500; }
+        .loading { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -17,46 +18,45 @@
 
     <div class="card">
         <h2>Profile Information</h2>
-        <div id="profile-data">Loading profile data...</div>
+        <div id="profile-data" class="loading">Loading profile data...</div>
     </div>
 
     <div class="card">
         <h2>Credit Card Data</h2>
-        <div id="cc-data">Loading credit card data...</div>
+        <div id="cc-data" class="loading">Loading credit card data...</div>
     </div>
 
     <script>
-        async function fetchData() {
+        async function loadData() {
             try {
-                // Fetching relative to the root api folder structure
-                const response = await fetch('./api/list-cc.json');
+                // Fetching directly without the ./ prefix
+                const response = await fetch('list-cc.json');
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`Server returned status ${response.status}`);
                 }
                 
                 const data = await response.json();
 
-                // Render Profile Information
+                const profile = data.profile || data;
                 document.getElementById('profile-data').innerHTML = `
-                    <p><strong>Status:</strong> Loaded Successfully</p>
-                    <pre>${JSON.stringify(data.profile || data, null, 2)}</pre>
+                    <pre>${JSON.stringify(profile, null, 2)}</pre>
                 `;
 
-                // Render Credit Card Data
+                const creditCards = data.creditCards || data.cards || data;
                 document.getElementById('cc-data').innerHTML = `
-                    <p><strong>Status:</strong> Loaded Successfully</p>
-                    <pre>${JSON.stringify(data.creditCards || data, null, 2)}</pre>
+                    <pre>${JSON.stringify(creditCards, null, 2)}</pre>
                 `;
 
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Fetch operation failed:', error);
+                
                 document.getElementById('profile-data').innerHTML = `<p class="error">Failed to load profile data.</p>`;
                 document.getElementById('cc-data').innerHTML = `<p class="error">Failed to load credit card data.</p>`;
             }
         }
 
-        fetchData();
+        loadData();
     </script>
 
 </body>
