@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popy Santos - CC Dashboard</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f9f9f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        pre { background: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Profile Information</h2>
+        <div id="profile-container">Loading profile...</div>
+    </div>
+
+    <div class="card">
+        <h2>Credit Card Data</h2>
+        <pre id="cc-container">Loading credit card data...</pre>
+    </div>
+
+    <script>
+        async function loadApiData() {
+            // Path matching your /api/list-cc.json endpoint structure
+            const apiUrl = './api/list-cc.json';
+
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Render Profile Data
+                const profile = data.profile;
+                document.getElementById('profile-container').innerHTML = `
+                    <p><strong>Name:</strong> ${profile.fullName}</p>
+                    <p><strong>Address:</strong> ${profile.streetAddress}, ${profile.city}, ${profile.state} ${profile.postalCode}, ${profile.country}</p>
+                `;
+
+                // Render Credit Cards JSON
+                document.getElementById('cc-container').textContent = JSON.stringify(data.creditCards, null, 2);
+
+            } catch (error) {
+                console.error('Error fetching API endpoint:', error);
+                document.getElementById('profile-container').textContent = 'Failed to load profile data.';
+                document.getElementById('cc-container').textContent = 'Failed to load credit card data.';
+            }
+        }
+
+        // Execute the async function on page load
+        loadApiData();
+    </script>
+
+</body>
+</html>
