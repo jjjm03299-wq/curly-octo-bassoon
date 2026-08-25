@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popy Santos - CC Dashboard</title>
+    <title>Dashboard - Profile & Data</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f9f9f9; color: #333; }
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #333; background: #f9f9f9; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        pre { background: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        pre { background: #f1f1f1; padding: 12px; border-radius: 4px; overflow-x: auto; }
+        .error { color: #d32f2f; }
     </style>
 </head>
 <body>
 
+    <h1>Application Dashboard</h1>
+
     <div class="card">
         <h2>Profile Information</h2>
-        <div id="profile-container">Loading profile...</div>
+        <div id="profile-data">Loading profile data...</div>
     </div>
 
     <div class="card">
         <h2>Credit Card Data</h2>
-        <pre id="cc-container">Loading credit card data...</pre>
+        <div id="cc-data">Loading credit card data...</div>
     </div>
 
     <script>
-        async function loadApiData() {
-            // Path matching your /api/list-cc.json endpoint structure
-            const apiUrl = './api/list-cc.json';
-
+        async function fetchData() {
             try {
-                const response = await fetch(apiUrl);
+                // Fetching relative to the root api folder structure
+                const response = await fetch('./api/list-cc.json');
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-
+                
                 const data = await response.json();
 
-                // Render Profile Data
-                const profile = data.profile;
-                document.getElementById('profile-container').innerHTML = `
-                    <p><strong>Name:</strong> ${profile.fullName}</p>
-                    <p><strong>Address:</strong> ${profile.streetAddress}, ${profile.city}, ${profile.state} ${profile.postalCode}, ${profile.country}</p>
+                // Render Profile Information
+                document.getElementById('profile-data').innerHTML = `
+                    <p><strong>Status:</strong> Loaded Successfully</p>
+                    <pre>${JSON.stringify(data.profile || data, null, 2)}</pre>
                 `;
 
-                // Render Credit Cards JSON
-                document.getElementById('cc-container').textContent = JSON.stringify(data.creditCards, null, 2);
+                // Render Credit Card Data
+                document.getElementById('cc-data').innerHTML = `
+                    <p><strong>Status:</strong> Loaded Successfully</p>
+                    <pre>${JSON.stringify(data.creditCards || data, null, 2)}</pre>
+                `;
 
             } catch (error) {
-                console.error('Error fetching API endpoint:', error);
-                document.getElementById('profile-container').textContent = 'Failed to load profile data.';
-                document.getElementById('cc-container').textContent = 'Failed to load credit card data.';
+                console.error('Fetch error:', error);
+                document.getElementById('profile-data').innerHTML = `<p class="error">Failed to load profile data.</p>`;
+                document.getElementById('cc-data').innerHTML = `<p class="error">Failed to load credit card data.</p>`;
             }
         }
 
-        // Execute the async function on page load
-        loadApiData();
+        fetchData();
     </script>
 
 </body>
